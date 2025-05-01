@@ -1,9 +1,16 @@
 package benkyosuru;
 
+import java.io.Serializable;
+
 /**
  * @author dragonscale
  */
-public class Word {
+public class Word implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4801476081680838061L;
+
 	public String word;
 	public Word_types type;
 	public String pronunciation;

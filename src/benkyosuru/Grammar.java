@@ -1,9 +1,16 @@
 package benkyosuru;
 
+import java.io.Serializable;
+
 /**
  * @author dragonscale
  */
-public class Grammar {
+public class Grammar implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1312913102188220854L;
+
 	public String name;
 	public String explanation;
 	public String example;

@@ -1,5 +1,11 @@
 package benkyosuru;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -8,7 +14,7 @@ import java.util.Scanner;
  * a cli test client for the app to get the basic functionality working before
  * porting to a gui
  */
-public class Benkyosuru_test_client {
+public class Benkyosuru_backend {
 
 	/**
 	 * main function
@@ -22,7 +28,7 @@ public class Benkyosuru_test_client {
 
 		while (!exit_pressed) {
 			System.out.println(
-					"Please enter your selection \n1: view all words \n2: view all grammar \n3: add new word \n4: add new grammar \n5: delete word \n6: delete grammar \n7: exit \n");
+					"Please enter your selection \n1: view all words \n2: view all grammar \n3: add new word \n4: add new grammar \n5: delete word \n6: delete grammar \n7: save \n8: load \n9: exit\n");
 			int selection = user_input.nextInt();
 
 			switch (selection) {
@@ -38,28 +44,39 @@ public class Benkyosuru_test_client {
 				}
 				case 3: {
 					// add new word
-					addword(words);
+					addword(words, user_input);
 					break;
 				}
 				case 4: {
 					// add new grammar
-					addgrammar(grammar_points);
+					addgrammar(grammar_points, user_input);
 					break;
 				}
 				case 5: {
 					// delete word
-					deleteword(words);
+					deleteword(words, user_input);
 					break;
 				}
 				case 6: {
 					// delete grammar
-					deletegrammar(grammar_points);
+					deletegrammar(grammar_points, user_input);
 					break;
 				}
 				case 7: {
+					serialize_word(words);
+					serialize_grammar(grammar_points);
+					break;
+				}
+				case 8: {
+					words = deserialize_word();
+					grammar_points = deserialize_grammar();
+					break;
+				}
+				case 9: {
 					// exit
 					exit_pressed = true;
 					System.err.println("user exited program");
+					user_input.close();
 					break;
 				}
 				default: {
@@ -76,7 +93,7 @@ public class Benkyosuru_test_client {
 	 * prints all items in the list
 	 * @param words
 	 */
-	private static void printwords(List<Word> words) {
+	public static void printwords(List<Word> words) {
 		// TODO Auto-generated method stub
 		for (Word current_word : words) {
 			System.out.println(current_word.toString());
@@ -88,7 +105,7 @@ public class Benkyosuru_test_client {
 	 * prints all items in the list
 	 * @param words
 	 */
-	private static void printgrammar(List<Grammar> grammar_points) {
+	public static void printgrammar(List<Grammar> grammar_points) {
 		for (Grammar current_point : grammar_points) {
 			System.out.println(current_point.toString());
 		}
@@ -99,13 +116,15 @@ public class Benkyosuru_test_client {
 	 * prompts the user about various things of the word and constructs the word to add to the list
 	 * @param words
 	 */
-	private static void addword(List<Word> words) {
+	public static void addword(List<Word> words, Scanner user_input) {
 		Word_types wtype;
-		Scanner user_input = new Scanner(System.in);
+		user_input.nextLine();
 		System.out.println("please enter the word: \n");
 		String word_name = user_input.nextLine();
 		System.out.println("please enter the Pronunciation: \n");
 		String pronunciation = user_input.nextLine();
+		System.out.println("please enter the definition: \n");
+		String def = user_input.nextLine();
 		System.out.println("what type of word is this?\n" + "1: NOUN\n" + "2: VERB\n" + "3: ADJECTIVE\n" + "4: ADVERB\n"
 				+ "5: PRONOUN\n" + "6: PREPOSITION\n" + "7: CONJUNCTION\n" + "8: DETERMINER\n");
 		int choice = user_input.nextInt();
@@ -115,52 +134,53 @@ public class Benkyosuru_test_client {
 				break;
 			}
 			case 2: {
-				wtype = Word_types.NOUN;
+				wtype = Word_types.VERB;
 				break;
 			}
 			case 3: {
-				wtype = Word_types.NOUN;
+				wtype = Word_types.ADJECTIVE;
 				break;
 			}
 			case 4: {
-				wtype = Word_types.NOUN;
+				wtype = Word_types.ADVERB;
 				break;
 			}
 			case 5: {
-				wtype = Word_types.NOUN;
+				wtype = Word_types.PRONOUN;
 				break;
 			}
 			case 6: {
-				wtype = Word_types.NOUN;
+				wtype = Word_types.PREPOSITION;
 				break;
 			}
 			case 7: {
-				wtype = Word_types.NOUN;
+				wtype = Word_types.CONJUNCTION;
 				break;
 			}
 			case 8: {
-				wtype = Word_types.NOUN;
+				wtype = Word_types.DETERMINER;
 				break;
 			}
 			default: {
+				user_input.close();
 				throw new IllegalArgumentException("Unexpected value: " + choice);
+				
 			}
 		}
 		
-		System.out.println("please enter the definition: \n");
-		String def = user_input.nextLine();
-		user_input.next();
+		user_input.nextLine();
 		Word new_word = new Word(word_name, wtype, pronunciation, def);
 		words.add(new_word);
 		System.out.println();
+		
 	}
 
 	/**
 	 * prompts the user varous things about the grammar point and constructs a new grammar object to add to the list
 	 * @param grammar_points
 	 */
-	private static void addgrammar(List<Grammar> grammar_points) {
-		Scanner user_input = new Scanner(System.in);
+	public static void addgrammar(List<Grammar> grammar_points, Scanner user_input) {
+		user_input.nextLine();
 		System.out.println("please enter the name of the grammar point: \n");
 		String grammar_name = user_input.nextLine();
 		System.out.println("please enter the way this point works: \n");
@@ -176,8 +196,8 @@ public class Benkyosuru_test_client {
 	 * deletes item based on id
 	 * @param words
 	 */
-	private static void deleteword(List<Word> words) {
-		Scanner user_input = new Scanner(System.in);
+	public static void deleteword(List<Word> words, Scanner user_input) {
+		user_input.nextLine();
 		System.out.println("please enter the id of the word you want to delete: \n");
 		int deleteid = user_input.nextInt();
 		words.removeIf(w -> w.getid() == deleteid);
@@ -188,11 +208,71 @@ public class Benkyosuru_test_client {
 	 * deletes item based on id
 	 * @param words
 	 */
-	private static void deletegrammar(List<Grammar> grammar_points) {
-		Scanner user_input = new Scanner(System.in);
+	public static void deletegrammar(List<Grammar> grammar_points, Scanner user_input) {
+		user_input.nextLine();
 		System.out.println("please enter the id of the grammar point you want to delete: \n");
 		int deleteid = user_input.nextInt();
 		grammar_points.removeIf(gp -> gp.getId() == deleteid);
 		System.out.println();
 	}
+
+	public static void serialize_word(List<Word> words) {
+		try(ObjectOutputStream filestream = new ObjectOutputStream(new FileOutputStream("words.ser"))) {
+    		filestream.writeObject(words);
+    	} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public static void serialize_grammar(List<Grammar> grammar_points) {
+		try(ObjectOutputStream filestream = new ObjectOutputStream(new FileOutputStream("grammar_points.ser"))) {
+    		filestream.writeObject(grammar_points);
+    	} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public static List<Word> deserialize_word() {
+    	try (ObjectInputStream objectstream = new ObjectInputStream(new FileInputStream("words.ser"))) {
+    		List<Word> wordlist = (ArrayList<Word>) objectstream.readObject();
+    		return wordlist;
+    	} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+
+	}
+	
+	public static List<Grammar> deserialize_grammar() {
+    	try (ObjectInputStream objectstream = new ObjectInputStream(new FileInputStream("grammar_points.ser"))) {
+    		List<Grammar> Grammar_words = (ArrayList<Grammar>) objectstream.readObject();
+    		return Grammar_words;
+    	} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 }
