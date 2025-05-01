@@ -15,6 +15,7 @@ public class Word implements Serializable {
 	public Word_types type;
 	public String pronunciation;
 	public String definition;
+	static private int numofinstances = 0;
 	private int id = 0;
 
 	public Word(String word, Word_types type, String pronunciation, String definition) {
@@ -22,7 +23,8 @@ public class Word implements Serializable {
 		this.type = type;
 		this.pronunciation = pronunciation;
 		this.definition = definition;
-		id++;
+		numofinstances++;
+		id = numofinstances;
 	}
 
 	/**

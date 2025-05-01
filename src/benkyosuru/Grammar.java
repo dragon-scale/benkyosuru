@@ -14,13 +14,15 @@ public class Grammar implements Serializable {
 	public String name;
 	public String explanation;
 	public String example;
+	static private int numofinstances = 0;
 	private int id = 0;
 
 	public Grammar(String name, String explanation, String example) {
 		this.name = name;
 		this.explanation = explanation;
 		this.example = example;
-		id++;
+		numofinstances++;
+		id = numofinstances;
 	}
 
 	/**
@@ -47,7 +49,7 @@ public class Grammar implements Serializable {
 	/**
 	 * @return the id
 	 */
-	public int getId() {
+	public int getid() {
 		return id;
 	}
 
